@@ -501,7 +501,7 @@ elif menu_mode == "📊 Hasil Training & Performa":
     st.markdown("---")
 
     # 2. Confusion Matrix & Classification Report
-    st.subheader("📊 2. Matriks Kebingungan (Confusion Matrix) & Detail Evaluasi Akhir")
+    st.subheader("📊 2. Confusion Matrix & Detail Evaluasi Akhir")
     col_cm, col_rep = st.columns([3, 2])
     
     with col_cm:
