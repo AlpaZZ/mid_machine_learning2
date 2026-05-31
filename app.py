@@ -451,13 +451,13 @@ if menu_mode == "🛡️ Packet Scanner":
 # ==============================================================================
 # MENU 2: 📊 HASIL TRAINING & PERFORMA (Model Performance)
 # ==============================================================================
-elif menu_mode == "Hasil Training & Performa":
+elif menu_mode == "📊 Hasil Training & Performa":
     st.markdown("<h1 style='font-size: 36px; font-weight: 700; margin-top: 0; background: linear-gradient(90deg, #ffffff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>📊 Hasil Training & Performa Eksperimen</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color: #94a3b8; font-size: 16px;'>Halaman interaktif untuk memeriksa hasil komparasi feature selection, skor final pengujian test set, matriks kebingungan (confusion matrix), detail hyperparameter terbaik, dan log MLflow.</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     # Baris Kartu Metrik Performa Final
-    st.subheader("Ringkasan Performa Akhir (Model Terbaik di Test Set)")
+    st.subheader("🎯 Ringkasan Performa Akhir (Model Terbaik di Test Set)")
     col_p1, col_p2, col_p3 = st.columns(3)
     with col_p1:
         st.markdown(f"<div class='metric-card'><div class='metric-label'>Akurasi Final (Test Set)</div><div class='metric-val-success'>99.87%</div><div style='color: #64748b; font-size: 12px; margin-top: 5px;'>Model Prediksi Sangat Akurat</div></div>", unsafe_allow_html=True)
@@ -469,7 +469,7 @@ elif menu_mode == "Hasil Training & Performa":
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 1. Komparasi Feature Selection
-    st.subheader("Perbandingan Metode Feature Selection (5-Fold Cross Validation)")
+    st.subheader("🔬 1. Perbandingan Metode Feature Selection (5-Fold Cross Validation)")
     
     cv_data = {
         'Method': ['Filter (SelectKBest)', 'Wrapper (RFE)', 'Embedded (SelectFromModel)'],
@@ -501,7 +501,7 @@ elif menu_mode == "Hasil Training & Performa":
     st.markdown("---")
 
     # 2. Confusion Matrix & Classification Report
-    st.subheader("Confusion Matrix & Detail Evaluasi Akhir")
+    st.subheader("📊 2. Matriks Kebingungan (Confusion Matrix) & Detail Evaluasi Akhir")
     col_cm, col_rep = st.columns([3, 2])
     
     with col_cm:
@@ -535,7 +535,7 @@ elif menu_mode == "Hasil Training & Performa":
     st.markdown("---")
 
     # 3. Dynamic MLflow database viewer
-    st.subheader("Catatan Riwayat Training (Database MLflow Terintegrasi)")
+    st.subheader("🔍 3. Catatan Riwayat Training (Database MLflow Terintegrasi)")
     st.markdown("Berikut adalah tabel riwayat training yang diekstraksi secara *real-time* langsung dari database pelacakan lokal MLflow (`mlflow.db`):")
     
     if MLFLOW_AVAILABLE:
@@ -566,7 +566,7 @@ elif menu_mode == "Hasil Training & Performa":
         except Exception as e:
             st.warning(f"Tidak dapat membaca database MLflow secara otomatis: {e}.")
     else:
-        st.info("**Informasi Pelacakan MLflow (Cloud Mode)**: Database eksperimen MLflow berjalan secara lokal pada komputer pengembangan. Di lingkungan cloud, model dimuat langsung dari `pipeline_terbaik.pkl` yang telah dilatih secara offline dengan parameter optimal: k=15 (SelectKBest) dan n_estimators=20 (RandomForestClassifier).")
+        st.info("💡 **Informasi Pelacakan MLflow (Cloud Mode)**: Database eksperimen MLflow berjalan secara lokal pada komputer pengembangan. Di lingkungan cloud, model dimuat langsung dari `pipeline_terbaik.pkl` yang telah dilatih secara offline dengan parameter optimal: k=15 (SelectKBest) dan n_estimators=20 (RandomForestClassifier).")
 
 # ==============================================================================
 # MENU 3: 📁 DATASET EXPLORER (Eksplorasi Data)
@@ -577,10 +577,10 @@ elif menu_mode == "📁 Dataset Explorer":
     st.markdown("---")
 
     if df_slice is None:
-        st.warning("ataset lokal 'Preprocessed_Balanced_dataset.csv' tidak terdeteksi di server. Harap jalankan langkah pengunduhan dataset di Jupyter Notebook terlebih dahulu.")
+        st.warning("🚨 Dataset lokal 'Preprocessed_Balanced_dataset.csv' tidak terdeteksi di server. Harap jalankan langkah pengunduhan dataset di Jupyter Notebook terlebih dahulu.")
     else:
         # Kartu Deskripsi Umum
-        st.subheader("ℹInformasi Umum Dataset IoT Vulnerability")
+        st.subheader("ℹ️ Informasi Umum Dataset IoT Vulnerability")
         col_d1, col_d2, col_d3, col_d4 = st.columns(4)
         with col_d1:
             st.markdown("<div class='metric-card'><div class='metric-label'>Total Baris Dataset</div><div class='metric-val-neutral'>1,048,575</div><div style='color: #64748b; font-size: 12px; margin-top: 5px;'>Sangat Besar & Variatif</div></div>", unsafe_allow_html=True)
@@ -594,14 +594,14 @@ elif menu_mode == "📁 Dataset Explorer":
         st.markdown("<br>", unsafe_allow_html=True)
 
         # Tampilkan Sampel Data Jaringan (Cached slice)
-        st.subheader("Cuplikan Data Jaringan (10 Baris Pertama)")
+        st.subheader("📁 1. Cuplikan Data Jaringan (10 Baris Pertama)")
         st.dataframe(df_slice.head(10), use_container_width=True)
         st.caption("Menampilkan 10 baris teratas dari 1,000,000+ data jaringan lalu lintas IoT.")
 
         st.markdown("---")
 
         # 2. Visualisasi Dinamis Fitur
-        st.subheader("Analisis Fitur Jaringan Dinamis")
+        st.subheader("📊 2. Analisis Fitur Jaringan Dinamis")
         st.markdown("Pilih parameter fitur jaringan IoT di bawah ini untuk melihat distribusinya secara instan menggunakan visualisasi KDE (Kernel Density Estimate) & Histogram:")
         
         # Buang kolom non-fitur numerik untuk eksplorasi dinamis, dan saring kolom yang bernilai konstan (varian 0)
