@@ -53,11 +53,29 @@ st.markdown("""
         color: #e2e8f0;
     }
 
-    /* ── Hide Streamlit default chrome, tapi tetap tampilkan tombol toggle sidebar ── */
-    #MainMenu, footer { visibility: hidden; }
-    header { visibility: hidden; }
-    /* Kembalikan visibilitas tombol panah expand/collapse sidebar agar bisa diklik */
-    [data-testid="collapsedControl"] { visibility: visible !important; }
+    /* ── Hide Streamlit chrome — header dibuat transparan, BUKAN disembunyikan,
+          agar tombol sidebar toggle (▶ / ◀) tetap bisa diklik ── */
+    #MainMenu { visibility: hidden; }
+    footer    { visibility: hidden; }
+
+    /* Buat header transparan & tipis, tapi tetap interaktif */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        height: 0px !important;
+        min-height: 0px !important;
+    }
+    /* Sembunyikan teks & elemen dekoratif di dalam header, tapi BUKAN seluruh header */
+    header[data-testid="stHeader"] > * { visibility: hidden; }
+    /* Tombol toggle sidebar (▶ / ◀) — selalu tampak dan bisa diklik */
+    [data-testid="collapsedControl"],
+    button[kind="header"],
+    div[data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 9999 !important;
+        position: fixed !important;
+    }
     .block-container { padding-top: 1.5rem !important; padding-bottom: 2rem !important; max-width: 1400px; }
 
     /* ── Sidebar ── */
