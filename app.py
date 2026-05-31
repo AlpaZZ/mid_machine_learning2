@@ -53,8 +53,11 @@ st.markdown("""
         color: #e2e8f0;
     }
 
-    /* ── Hide Streamlit default chrome ── */
-    #MainMenu, footer, header { visibility: hidden; }
+    /* ── Hide Streamlit default chrome, tapi tetap tampilkan tombol toggle sidebar ── */
+    #MainMenu, footer { visibility: hidden; }
+    header { visibility: hidden; }
+    /* Kembalikan visibilitas tombol panah expand/collapse sidebar agar bisa diklik */
+    [data-testid="collapsedControl"] { visibility: visible !important; }
     .block-container { padding-top: 1.5rem !important; padding-bottom: 2rem !important; max-width: 1400px; }
 
     /* ── Sidebar ── */
