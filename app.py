@@ -14,7 +14,11 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
-import mlflow
+try:
+    import mlflow
+    MLFLOW_AVAILABLE = True
+except Exception:
+    MLFLOW_AVAILABLE = False
 
 # 1. Konfigurasi Halaman & Tema Premium (Cyber Security Dark Mode)
 st.set_page_config(
@@ -189,9 +193,15 @@ pipeline, le = load_assets()
 @st.cache_data
 def load_dataset_slice():
     dataset_path = "Preprocessed_Balanced_dataset.csv"
+    fallback_path = "sample_iot_data.csv"
     if os.path.exists(dataset_path):
         try:
             return pd.read_csv(dataset_path, nrows=10000)
+        except:
+            pass
+    if os.path.exists(fallback_path):
+        try:
+            return pd.read_csv(fallback_path)
         except:
             return None
     return None
@@ -220,6 +230,7 @@ if menu_mode == "🛡️ Packet Scanner":
 
     def generate_sample_csv(nrows):
         dataset_path = "Preprocessed_Balanced_dataset.csv"
+        fallback_path = "sample_iot_data.csv"
         if os.path.exists(dataset_path):
             try:
                 df_full = pd.read_csv(dataset_path, nrows=10000)
@@ -227,6 +238,20 @@ if menu_mode == "🛡️ Packet Scanner":
                 n_half = max(2, nrows // 2)
                 df_normal = df_full[df_full['Label'] == 0].sample(n=n_half, random_state=42, replace=True)
                 df_attack = df_full[df_full['Label'] == 1].sample(n=nrows - n_half, random_state=42, replace=True)
+                df_sample = pd.concat([df_normal, df_attack]).sample(frac=1.0, random_state=42)
+                
+                # Buang kolom label/cheat
+                kolom_contekan = ['Label', 'Attack_Category', 'Attack_sub_category']
+                df_sample_clean = df_sample.drop(columns=[col for col in kolom_contekan if col in df_sample.columns])
+                return df_sample_clean.to_csv(index=False).encode('utf-8')
+            except Exception as e:
+                pass
+        if os.path.exists(fallback_path):
+            try:
+                df_full = pd.read_csv(fallback_path)
+                n_half = max(2, nrows // 2)
+                df_normal = df_full[df_full['Label'] == 0].sample(n=min(n_half, len(df_full[df_full['Label'] == 0])), random_state=42, replace=True)
+                df_attack = df_full[df_full['Label'] == 1].sample(n=min(nrows - n_half, len(df_full[df_full['Label'] == 1])), random_state=42, replace=True)
                 df_sample = pd.concat([df_normal, df_attack]).sample(frac=1.0, random_state=42)
                 
                 # Buang kolom label/cheat
@@ -513,32 +538,35 @@ elif menu_mode == "📊 Hasil Training & Performa":
     st.subheader("🔍 3. Catatan Riwayat Training (Database MLflow Terintegrasi)")
     st.markdown("Berikut adalah tabel riwayat training yang diekstraksi secara *real-time* langsung dari database pelacakan lokal MLflow (`mlflow.db`):")
     
-    try:
-        # Hubungkan ke MLflow secara aman tanpa tabrakan nama impor
-        runs = mlflow.search_runs(experiment_names=["IoT_Vulnerability_Detection"])
-        if not runs.empty:
-            # Saring kolom agar rapi & mudah dibaca
-            kolom_log = ['run_id', 'start_time', 'params.Feature_Selection_Method', 
-                         'params.K_Features', 'metrics.Accuracy', 'metrics.F1_Macro']
-            kolom_show = [c for c in kolom_log if c in runs.columns]
-            
-            runs_show = runs[kolom_show].copy()
-            # Ubah nama kolom agar ramah pengguna
-            runs_show.rename(columns={
-                'run_id': 'Run ID',
-                'start_time': 'Waktu Eksperimen',
-                'params.Feature_Selection_Method': 'Metode Seleksi Fitur',
-                'params.K_Features': 'Jumlah Fitur (k)',
-                'metrics.Accuracy': 'Akurasi Akhir',
-                'metrics.F1_Macro': 'Skor F1-Macro'
-            }, inplace=True)
-            
-            st.dataframe(runs_show, use_container_width=True)
-            st.success(f"Ditemukan {len(runs_show)} eksperimen aktif di database MLflow.")
-        else:
-            st.info("Belum ada riwayat eksperimen aktif yang tercatat di database MLflow.")
-    except Exception as e:
-        st.warning(f"Tidak dapat membaca log MLflow secara otomatis: {e}. Pastikan Anda telah menjalankan python mlflow.py untuk menginisialisasi database.")
+    if MLFLOW_AVAILABLE:
+        try:
+            # Hubungkan ke MLflow secara aman tanpa tabrakan nama impor
+            runs = mlflow.search_runs(experiment_names=["IoT_Vulnerability_Detection"])
+            if not runs.empty:
+                # Saring kolom agar rapi & mudah dibaca
+                kolom_log = ['run_id', 'start_time', 'params.Feature_Selection_Method', 
+                             'params.K_Features', 'metrics.Accuracy', 'metrics.F1_Macro']
+                kolom_show = [c for c in kolom_log if c in runs.columns]
+                
+                runs_show = runs[kolom_show].copy()
+                # Ubah nama kolom agar ramah pengguna
+                runs_show.rename(columns={
+                    'run_id': 'Run ID',
+                    'start_time': 'Waktu Eksperimen',
+                    'params.Feature_Selection_Method': 'Metode Seleksi Fitur',
+                    'params.K_Features': 'Jumlah Fitur (k)',
+                    'metrics.Accuracy': 'Akurasi Akhir',
+                    'metrics.F1_Macro': 'Skor F1-Macro'
+                }, inplace=True)
+                
+                st.dataframe(runs_show, use_container_width=True)
+                st.success(f"Ditemukan {len(runs_show)} eksperimen aktif di database MLflow.")
+            else:
+                st.info("Belum ada riwayat eksperimen aktif yang tercatat di database MLflow.")
+        except Exception as e:
+            st.warning(f"Tidak dapat membaca database MLflow secara otomatis: {e}.")
+    else:
+        st.info("💡 **Informasi Pelacakan MLflow (Cloud Mode)**: Database eksperimen MLflow berjalan secara lokal pada komputer pengembangan. Di lingkungan cloud, model dimuat langsung dari `pipeline_terbaik.pkl` yang telah dilatih secara offline dengan parameter optimal: k=15 (SelectKBest) dan n_estimators=20 (RandomForestClassifier).")
 
 # ==============================================================================
 # MENU 3: 📁 DATASET EXPLORER (Eksplorasi Data)

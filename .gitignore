@@ -1,0 +1,23 @@
+# Ignore data files
+Preprocessed_Balanced_dataset.csv
+mid_semester_kelompok3.zip
+
+# Ignore MLflow files
+mlflow.db
+mlruns/
+.mlflow/
+
+# Ignore Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Ignore local environment files and logs
+.env
+.venv/
+env/
+venv/
+logs-alpazz-mid_machine_learning2-main-app.py*.txt
